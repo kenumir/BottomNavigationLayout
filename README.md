@@ -1,3 +1,10 @@
+# Fork changes
+1. Add attr `bottom_tabs_shadow` and `always_show_text`
+2. Fix NPE exceptions
+3. Fix AndroidStudio design preview errors
+4. Add new demo example
+5. Other small fixes
+
 # BottomNavigationLayout
 
 Simple lightweight library that works out of the box implementing [Bottom navigation component of Material Design guidelines](https://www.google.com/design/spec/components/bottom-navigation.html)
