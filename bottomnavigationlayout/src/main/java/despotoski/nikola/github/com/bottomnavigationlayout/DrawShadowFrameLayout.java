@@ -76,7 +76,9 @@ public class DrawShadowFrameLayout extends FrameLayout {
     public void draw(Canvas canvas) {
         super.draw(canvas);
         if (mShadowDrawable != null && mShadowVisible && !isTablet) {
-            getBackground().setBounds(0, mShadowDrawable.getBounds().bottom, mWidth, mHeight);
+            if (getBackground() != null) {
+                getBackground().setBounds(0, mShadowDrawable.getBounds().bottom, mWidth, mHeight);
+            }
             mShadowDrawable.draw(canvas);
         }
     }

@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements BottomTabLayout.O
                         .setIcon(R.drawable.ic_favorite_white_24dp)
                         .setParentColorBackground(android.R.color.holo_green_light)
                         .build()); */
-//        tabLayout.populateBottomTabItems(builder);
+        tabLayout.populateBottomTabItems(builder);
     }
 
     @Override

@@ -143,8 +143,7 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
         if (!isTablet)
             setupOverlayView();
         setupContainer();
-        TypedArray a = context.obtainStyledAttributes(attrs,
-                R.styleable.BottomNavigationTabLayout);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.BottomNavigationTabLayout);
         mShiftingMode = a.getBoolean(R.styleable.BottomNavigationTabLayout_shift_mode, false);
         mInactiveTextColor = a.getColor(R.styleable.BottomNavigationTabLayout_inactive_item_text_color, Color.WHITE);
         mActiveColorFilter = a.getResourceId(R.styleable.BottomNavigationTabLayout_active_item_color_filter, View.NO_ID);
@@ -287,14 +286,16 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
      * @param parentBackgroundColors Color associated with each menu item in provide menuResId res id, size must be equal to the number of menu items.
      */
     public void setBottomTabs(@MenuRes int menuResId, int[] parentBackgroundColors) {
-        if (menuResId != View.NO_ID) {
-            MenuBuilder menuBuilder = new MenuBuilder(getContext());
-            ((Activity) getContext()).getMenuInflater().inflate(menuResId, menuBuilder);
-            if (menuBuilder.size() != parentBackgroundColors.length) {
-                throw new IllegalArgumentException("The number of menu items should be equal to the number of parent backgrounds. Make sure you are using both attributes.");
+        if (!isInEditMode()) {
+            if (menuResId != View.NO_ID) {
+                MenuBuilder menuBuilder = new MenuBuilder(getContext());
+                ((Activity) getContext()).getMenuInflater().inflate(menuResId, menuBuilder);
+                if (menuBuilder.size() != parentBackgroundColors.length) {
+                    throw new IllegalArgumentException("The number of menu items should be equal to the number of parent backgrounds. Make sure you are using both attributes.");
+                }
+                checkBottomItemGuidelines(menuBuilder.size());
+                populateFromMenuResource(menuBuilder, parentBackgroundColors);
             }
-            checkBottomItemGuidelines(menuBuilder.size());
-            populateFromMenuResource(menuBuilder, parentBackgroundColors);
         }
     }
 
