@@ -152,6 +152,11 @@ public final class BottomTabletNavigationView extends ImageView implements Botto
     public void setShiftingModeEnabled(boolean shiftingModeEnabled) {
     }
 
+    @Override
+    public void setAlwaysShowText(boolean always) {
+
+    }
+
     public void setInactiveTextColorResource(@ColorRes int inactiveTextColor) {
         this.mInactiveTextColor = ContextCompat.getColor(getContext(), inactiveTextColor);
     }

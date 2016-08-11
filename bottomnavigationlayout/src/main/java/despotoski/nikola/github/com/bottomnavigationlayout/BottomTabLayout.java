@@ -26,6 +26,8 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -39,12 +41,14 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.view.menu.MenuBuilder;
 import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -144,18 +148,22 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
             setupOverlayView();
         setupContainer();
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.BottomNavigationTabLayout);
+        boolean shadow = a.getBoolean(R.styleable.BottomNavigationTabLayout_bottom_tabs_shadow, true);
+        mAlwaysShowText = a.getBoolean(R.styleable.BottomNavigationTabLayout_always_show_text, false);
         mShiftingMode = a.getBoolean(R.styleable.BottomNavigationTabLayout_shift_mode, false);
         mInactiveTextColor = a.getColor(R.styleable.BottomNavigationTabLayout_inactive_item_text_color, Color.WHITE);
         mActiveColorFilter = a.getResourceId(R.styleable.BottomNavigationTabLayout_active_item_color_filter, View.NO_ID);
         int bottomTabMenuResId = a.getResourceId(R.styleable.BottomNavigationTabLayout_bottom_tabs_menu, View.NO_ID);
         if (bottomTabMenuResId != View.NO_ID) {
             int parentBackgroundColorsResId = a.getResourceId(R.styleable.BottomNavigationTabLayout_bottom_tabs_menu_parent_background_colors, View.NO_ID);
-            mParentBackgroundColors = getResources().getIntArray(parentBackgroundColorsResId);
+            if (!isInEditMode() && parentBackgroundColorsResId != View.NO_ID) {
+                mParentBackgroundColors = getResources().getIntArray(parentBackgroundColorsResId);
+            }
         }
         mMaxItemWidth = (int) getResources().getDimension(R.dimen.bottom_navigation_max_width);
         mMinBottomItemWidth = (int) getResources().getDimension(R.dimen.bottom_navigation_min_width);
 
-        setBottomTabs(bottomTabMenuResId, mParentBackgroundColors);
+        setBottomTabs(bottomTabMenuResId);
         Util.runOnAttachedToLayout(this, new Runnable() {
             @Override
             public void run() {
@@ -163,6 +171,30 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
             }
         });
         a.recycle();
+        if (!shadow) {
+            setShadowVisible(false);
+            ViewCompat.setElevation(this, 0);
+        }
+    }
+
+    public int getBackgroundColor() {
+        Drawable drawable = getBackground();
+        if (drawable instanceof ColorDrawable) {
+            ColorDrawable colorDrawable = (ColorDrawable) drawable;
+            if (Build.VERSION.SDK_INT >= 11) {
+                return colorDrawable.getColor();
+            }
+            try {
+                Field field = colorDrawable.getClass().getDeclaredField("mState");
+                field.setAccessible(true);
+                Object object = field.get(colorDrawable);
+                field = object.getClass().getDeclaredField("mUseColor");
+                field.setAccessible(true);
+                return field.getInt(object);
+            } catch (Exception ignore) {
+            }
+        }
+        return Color.TRANSPARENT;
     }
 
     @Override
@@ -229,7 +261,6 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
 
     private void updateBottomNavViews() {
         if (mContainer.getChildCount() == 0) return;
-        mAlwaysShowText = mContainer.getChildCount() == 3;
         mMinBottomItemWidth = findMinItemWidth();
         for (int i = mContainer.getChildCount() - 1; i >= 0; i--) {
             View childAt = mContainer.getChildAt(i);
@@ -240,7 +271,7 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
                 bottomView.setShiftingModeEnabled(mShiftingMode);
                 bottomView.setActiveColorResource(mActiveColorFilter);
                 bottomView.setInactiveTextColor(mInactiveTextColor);
-
+                bottomView.setAlwaysShowText(mAlwaysShowText);
             }
         }
         selectTabView();
@@ -283,35 +314,40 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
 
     /**
      * @param menuResId              Menu resource from which bottom navigation items will be generated
-     * @param parentBackgroundColors Color associated with each menu item in provide menuResId res id, size must be equal to the number of menu items.
      */
-    public void setBottomTabs(@MenuRes int menuResId, int[] parentBackgroundColors) {
+    public void setBottomTabs(@MenuRes int menuResId) {
         if (!isInEditMode()) {
             if (menuResId != View.NO_ID) {
                 MenuBuilder menuBuilder = new MenuBuilder(getContext());
                 ((Activity) getContext()).getMenuInflater().inflate(menuResId, menuBuilder);
-                if (menuBuilder.size() != parentBackgroundColors.length) {
-                    throw new IllegalArgumentException("The number of menu items should be equal to the number of parent backgrounds. Make sure you are using both attributes.");
-                }
+                //if (menuBuilder.size() != parentBackgroundColors.length) {
+                 //   throw new IllegalArgumentException("The number of menu items should be equal to the number of parent backgrounds. Make sure you are using both attributes.");
+                //}
                 checkBottomItemGuidelines(menuBuilder.size());
-                populateFromMenuResource(menuBuilder, parentBackgroundColors);
+                populateFromMenuResource(menuBuilder);
             }
         }
     }
 
-    private void populateFromMenuResource(@NonNull MenuBuilder menuBuilder, @NonNull int[] parentBackgroundColors) {
+    private void populateFromMenuResource(@NonNull MenuBuilder menuBuilder) {
         removeAllTabs();
         int size = menuBuilder.size();
         checkBottomItemGuidelines(size);
         for (int i = 0; i < size; i++) {
             MenuItem item = menuBuilder.getItem(i);
-            BottomNavigationItem bottomNavigationItem = BottomNavigationItemBuilder.create(item.getIcon(), String.valueOf(item.getTitle()), parentBackgroundColors[i]);
+            BottomNavigationItem bottomNavigationItem = BottomNavigationItemBuilder.create(item.getIcon(), String.valueOf(item.getTitle()), getParentBackgroundColor(i));
             bottomNavigationItem.setPosition(i);
             addBottomNavigationItem(bottomNavigationItem);
         }
         updateBottomNavViews();
     }
 
+    private int getParentBackgroundColor(int index) {
+        if (mParentBackgroundColors != null && mParentBackgroundColors.length < index) {
+            return  mParentBackgroundColors[index];
+        }
+        return getBackgroundColor();
+    }
 
     private void addBottomNavigationItem(BottomNavigationItem item) {
         View tabView;

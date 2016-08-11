@@ -71,10 +71,11 @@ public class DrawShadowFrameLayout extends FrameLayout {
         }
         ViewCompat.postInvalidateOnAnimation(this);
     }
-
+/*
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
+
         if (mShadowDrawable != null && mShadowVisible && !isTablet) {
             if (getBackground() != null) {
                 getBackground().setBounds(0, mShadowDrawable.getBounds().bottom, mWidth, mHeight);
@@ -82,8 +83,9 @@ public class DrawShadowFrameLayout extends FrameLayout {
             mShadowDrawable.draw(canvas);
         }
     }
-
+*/
     public void setShadowVisible(boolean shadowVisible) {
+        mShadowVisible = shadowVisible;
         setWillNotDraw(!mShadowVisible);
         updateShadowBounds();
     }

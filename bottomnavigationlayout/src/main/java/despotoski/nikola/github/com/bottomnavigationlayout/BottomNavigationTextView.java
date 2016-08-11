@@ -28,6 +28,7 @@ import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -81,6 +82,7 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
     private float mOriginalTextSize;
     private boolean isTablet;
     private int mTargetInactivePadding;
+    private boolean mAlwaysShowText = false;
 
     public BottomNavigationTextView(Context context) {
         super(context);
@@ -110,7 +112,7 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
                 ContextCompat.getColor(getContext(), bottomNavigationItem.getParentBackgroundColorResource()) : bottomNavigationItem.getParentColorBackgroundColor();
         mIcon = bottomNavigationItem.getIcon();
         mText = bottomNavigationItem.getText();
-        mTopDrawable = DrawableCompat.wrap(bottomNavigationItem.getIconDrawable());
+        mTopDrawable = DrawableCompat.wrap(bottomNavigationItem.getIconDrawable()).mutate();
         initialize();
     }
 
@@ -130,7 +132,7 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
         setMaxLines(1);
         setEllipsize(TextUtils.TruncateAt.END);
         if (mTopDrawable == null) {
-            mTopDrawable = DrawableCompat.wrap(ContextCompat.getDrawable(getContext(), mIcon));
+            mTopDrawable = DrawableCompat.wrap(ContextCompat.getDrawable(getContext(), mIcon)).mutate();
         }
         mOriginalTextSize = getTextSize();
         mTargetInactivePadding = (int) ((mViewTopPaddingInactive) + (mOriginalTextSize / 2));
@@ -167,14 +169,14 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
     }
 
     private int getInactivePadding() {
-        boolean isAlwaysTextShown = ((ViewGroup) getParent()).getChildCount() == 3;
+        boolean isAlwaysTextShown = mAlwaysShowText || ((ViewGroup) getParent()).getChildCount() == 3;
         return !isAlwaysTextShown ?
                 mTargetInactivePadding
                 : mViewTopPaddingInactive;
     }
 
     private boolean isTextAlwaysShown() {
-        return ((ViewGroup) getParent()).getChildCount() == 3;
+        return mAlwaysShowText || ((ViewGroup) getParent()).getChildCount() == 3;
     }
 
 
@@ -187,7 +189,7 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
     public void setSelected(boolean selected) {
         super.setSelected(selected);
 
-        boolean isAlwaysTextShown = ((ViewGroup) getParent()).getChildCount() == 3;
+        boolean isAlwaysTextShown = mAlwaysShowText || ((ViewGroup) getParent()).getChildCount() == 3;
         if (selected && !previouslySelected) {
             if (!isAlwaysTextShown) {
                 animateSelection(0, ACTIVE_TEXT_SIZE);
@@ -206,6 +208,11 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
             }
         }
         previouslySelected = selected;
+        if (selected) {
+            DrawableCompat.setTint(mTopDrawable, mTextActiveColorFilter);
+        } else {
+            DrawableCompat.setTintList(mTopDrawable, ColorStateList.valueOf(mInactiveTextColor));
+        }
     }
 
     private void applyColorFilters() {
@@ -213,7 +220,7 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
             DrawableCompat.setTint(mTopDrawable, mTextActiveColorFilter);
             setTextColor(mTextActiveColorFilter);
         } else {
-            DrawableCompat.setTintList(mTopDrawable, null);
+            DrawableCompat.setTintList(mTopDrawable, ColorStateList.valueOf(mInactiveTextColor));
             if (!mShiftingMode) {
                 setTextColor(mInactiveTextColor);
             }
@@ -260,6 +267,11 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
     @Override
     public void setShiftingModeEnabled(boolean shiftingModeEnabled) {
         mShiftingMode = shiftingModeEnabled;
+    }
+
+    @Override
+    public void setAlwaysShowText(boolean always) {
+        mAlwaysShowText = always;
     }
 
     @ColorInt
@@ -318,7 +330,7 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
         @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
         @Override
         public void animateSelection(float textSize, float targetTextSize) {
-            boolean isAlwaysTextShown = ((ViewGroup) getParent()).getChildCount() == 3;
+            boolean isAlwaysTextShown = mAlwaysShowText || ((ViewGroup) getParent()).getChildCount() == 3;
             int paddingStart = getInactivePadding();
             int paddingEnd = mViewTopPaddingActive;
             if (!isSelected()) {
@@ -390,7 +402,7 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
 
         @Override
         public void animateSelection(float textSize, float targetTextSize) {
-            boolean isAlwaysTextShown = ((ViewGroup) getParent()).getChildCount() == 3;
+            boolean isAlwaysTextShown = mAlwaysShowText || ((ViewGroup) getParent()).getChildCount() == 3;
             int paddingStart = getInactivePadding();
             int paddingEnd = mViewTopPaddingActive;
             if (!isSelected()) {
@@ -507,7 +519,7 @@ public final class BottomNavigationTextView extends TextView implements BottomNa
             revealView.setBackgroundColor(Color.BLACK);
             final ColorDrawable color = getColorDrawable(revealView);
             int colorInt;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.HONEYCOMB) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 colorInt = color.getColor();
             } else if (topParent.getPreviouslySelectedItem() != null) {
                 colorInt = topParent.getPreviouslySelectedItem().getParentColorBackgroundColor();

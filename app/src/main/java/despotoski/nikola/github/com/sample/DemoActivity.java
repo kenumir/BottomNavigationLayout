@@ -18,7 +18,6 @@ public class DemoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_demo);
 
         tabs = (BottomTabLayout) findViewById(R.id.tabs);
-        tabs.setShadowVisible(false);
         tabs.addOnNavigationItemSelectionListener(new BottomTabLayout.OnNavigationItemSelectionListener() {
             @Override
             public void onBottomNavigationItemSelected(BottomNavigationItem item) {
@@ -37,7 +36,6 @@ public class DemoActivity extends AppCompatActivity {
 
             }
         });
-        ViewCompat.setElevation(tabs, 0);
         if (savedInstanceState == null) {
             tabs.setSelectedItemPosition(0);
         }

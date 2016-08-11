@@ -9,5 +9,7 @@
         <attr name="bottom_tabs_menu" format="reference"/>
         <attr name="shift_mode" format="boolean"/>
         <attr name="bottom_tabs_menu_parent_background_colors" format="reference"/>
+        <attr name="bottom_tabs_shadow" format="boolean"/>
+        <attr name="always_show_text" format="boolean"/>
     </declare-styleable>
 </resources>
