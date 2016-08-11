@@ -4,14 +4,15 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="active_color">#eeff41</color>
-    <color name="parent_background_1">#19418b</color>
-    <color name="parent_background_2">#0c374d</color>
-    <color name="parent_background_3">#1b5e20</color>
-    <color name="parent_background_4">#00695c</color>
+
+    <color name="parent_background_1">#FF19418b</color>
+    <color name="parent_background_2">#FF0c374d</color>
+    <color name="parent_background_3">#FF1b5e20</color>
+    <color name="parent_background_4">#FF00695c</color>
     <array name="menu_parent_background_colors">
         <item>@color/parent_background_1</item>
         <item>@color/parent_background_2</item>
         <item>@color/parent_background_3</item>
-       <item>@color/parent_background_4</item>
+        <item>@color/parent_background_4</item>
     </array>
 </resources>
