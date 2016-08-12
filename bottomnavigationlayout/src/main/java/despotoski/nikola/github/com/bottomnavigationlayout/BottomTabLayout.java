@@ -425,6 +425,7 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
         }
     }
 
+    /*
     @Override
     protected Parcelable onSaveInstanceState() {
         Parcelable parcelable = super.onSaveInstanceState();
@@ -432,14 +433,15 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
         savedState.selectedPosition = mSelectedItemPosition;
         return savedState;
     }
+    */
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         super.onRestoreInstanceState(state);
-        if (state instanceof SavedState) {
+        /*if (state instanceof SavedState) {
             mSelectedItemPosition = ((SavedState) state).selectedPosition;
             selectTabView();
-        }
+        }*/
     }
 
     private void dispatchItemSelected(BottomNavigationItem item) {
