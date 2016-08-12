@@ -428,9 +428,12 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
     @Override
     protected Parcelable onSaveInstanceState() {
         Parcelable parcelable = super.onSaveInstanceState();
-        SavedState savedState = new SavedState(parcelable);
-        savedState.selectedPosition = mSelectedItemPosition;
-        return savedState;
+        if (Build.VERSION.SDK_INT > 10) {
+            SavedState savedState = new SavedState(parcelable);
+            savedState.selectedPosition = mSelectedItemPosition;
+            return savedState;
+        }
+        return parcelable;
     }
 
     @Override
