@@ -1,5 +1,5 @@
 # Fork changes
-1. Add attr `bottom_tabs_shadow` and `always_show_text`
+1. Add attr `bottom_tabs_shadow`, `always_show_text`, `disable_tablet_behaviour`
 2. Fix NPE exceptions
 3. Fix AndroidStudio design preview errors
 4. Add new demo example

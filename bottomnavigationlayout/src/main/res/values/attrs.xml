@@ -11,5 +11,6 @@
         <attr name="bottom_tabs_menu_parent_background_colors" format="reference"/>
         <attr name="bottom_tabs_shadow" format="boolean"/>
         <attr name="always_show_text" format="boolean"/>
+        <attr name="disable_tablet_behaviour" format="boolean"/>
     </declare-styleable>
 </resources>

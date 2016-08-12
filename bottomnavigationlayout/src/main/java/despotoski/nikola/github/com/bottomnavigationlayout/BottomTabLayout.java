@@ -122,6 +122,10 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
     private void initalize(Context context, AttributeSet attrs) {
         bringToFront();
         mMaxContainerHeight = (int) getResources().getDimension(R.dimen.bottom_navigation_height);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.BottomNavigationTabLayout);
+        if (isTablet) {
+            isTablet = !a.getBoolean(R.styleable.BottomNavigationTabLayout_disable_tablet_behaviour, false);
+        }
         if (isTablet) {
             setShadowVisible(false);
             Util.runOnAttachedToLayout(this, new Runnable() {
@@ -144,10 +148,11 @@ public class BottomTabLayout extends DrawShadowFrameLayout {
         removeAllViews();
         ViewCompat.setElevation(this, getResources().getDimension(R.dimen.bottom_navigation_elevation));
         setDescendantFocusability(FOCUS_AFTER_DESCENDANTS);
-        if (!isTablet)
+        if (!isTablet) {
             setupOverlayView();
+        }
         setupContainer();
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.BottomNavigationTabLayout);
+
         boolean shadow = a.getBoolean(R.styleable.BottomNavigationTabLayout_bottom_tabs_shadow, true);
         mAlwaysShowText = a.getBoolean(R.styleable.BottomNavigationTabLayout_always_show_text, false);
         mShiftingMode = a.getBoolean(R.styleable.BottomNavigationTabLayout_shift_mode, false);
